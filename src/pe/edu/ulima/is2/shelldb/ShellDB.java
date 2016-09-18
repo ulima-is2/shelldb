@@ -31,35 +31,22 @@ public class ShellDB {
         String nombreBD = args[1];
         String sentenciaSQL = args[2];
         
-        BDAdapter adapter;
-        if (tipoBD.toUpperCase().equals("DERBY")){
-            // Base de datos Derby
-            try {
-                adapter = new DerbyBDAdapter();
-                adapter.conectarse(nombreBD);
-                String resp = adapter.ejecutar(sentenciaSQL);
-                System.out.println(resp);
-            } catch (SQLException se)  {
-                System.err.println(se);
-            } catch (ClassNotFoundException ex) {
-                System.err.println(ex);
-            }
-        }else if (tipoBD.toUpperCase().equals("SQLITE")){
-            // Base de datos SQLite
-            try {
-                adapter = new SQLiteBDAdapter();
-                adapter.conectarse(nombreBD);
-                String resp = adapter.ejecutar(sentenciaSQL);
-                System.out.println(resp);
-            } catch (SQLException se)  {
-                System.err.println(se);
-            } catch (ClassNotFoundException ex) {
-                System.err.println(ex);
-            }
-            
-        }else{
+        BDFactory factory = new BDFactory();
+        BDAdapter adapter = factory.obtenerAdapter(tipoBD);
+        
+        if (adapter == null){
             System.err.println("No especificó un tipo de BD permitido");
+        }else{
+        
+            try {
+                adapter.conectarse(nombreBD);
+                String resp = adapter.ejecutar(sentenciaSQL);
+                System.out.println(resp);
+            } catch (SQLException | ClassNotFoundException se) {
+                System.err.println(se);
+            }
         }
+        
     }
     
 }
