@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -29,90 +31,32 @@ public class ShellDB {
         String nombreBD = args[1];
         String sentenciaSQL = args[2];
         
-        System.out.println("TipoBD:" + tipoBD);
-        System.out.println("sentenciaSQL:" + sentenciaSQL);
-        
+        BDAdapter adapter;
         if (tipoBD.toUpperCase().equals("DERBY")){
             // Base de datos Derby
             try {
-                Connection conn = 
-                        DriverManager.getConnection("jdbc:derby:"+ nombreBD +
-                                ";create=true;user=is2;password=123");
-                
-                Statement statement = conn.createStatement();
-                if (statement.execute(sentenciaSQL)){
-                    // Entrega un resulset
-                    ResultSet rs = statement.getResultSet();
-                    while(rs.next()){
-                        int numColumns = rs.getMetaData().getColumnCount();
-                        //String[] valoresColumna = new String[numColumns];
-                        for (int i=0; i<numColumns; i++){
-                            String nombreColumna = 
-                                    rs.getMetaData().getColumnName(i+1);
-                            int tipoColumna = 
-                                    rs.getMetaData().getColumnType(i+1);
-                            
-                            String valorColumna = "";
-                            if (tipoColumna == java.sql.Types.VARCHAR){
-                                valorColumna = rs.getString(nombreColumna);
-                            }else if (tipoColumna == java.sql.Types.INTEGER){
-                                valorColumna = 
-                                        String.valueOf(rs.getInt(nombreColumna));
-                            }
-                            //valoresColumna[i] = valorColumna;
-                            System.out.print(valorColumna + "\t\t");
-                        }
-                        System.out.println();
-                    }
-                }else{
-                    System.out.println(sentenciaSQL);
-                    
-                    System.out.println("Se ejecutó la sentencia correctamente");
-                }
-                
+                adapter = new DerbyBDAdapter();
+                adapter.conectarse(nombreBD);
+                String resp = adapter.ejecutar(sentenciaSQL);
+                System.out.println(resp);
             } catch (SQLException se)  {
                 System.err.println(se);
+            } catch (ClassNotFoundException ex) {
+                System.err.println(ex);
             }
         }else if (tipoBD.toUpperCase().equals("SQLITE")){
+            // Base de datos SQLite
             try {
-                Class.forName("org.sqlite.JDBC");
-                
-                Connection conn = 
-                        DriverManager.getConnection("jdbc:sqlite:" + nombreBD);
-                
-                Statement statement = conn.createStatement();
-                if (statement.execute(sentenciaSQL)){
-                    // Entrega un resulset
-                    ResultSet rs = statement.getResultSet();
-                    while(rs.next()){
-                        int numColumns = rs.getMetaData().getColumnCount();
-                        //String[] valoresColumna = new String[numColumns];
-                        for (int i=0; i<numColumns; i++){
-                            String nombreColumna = 
-                                    rs.getMetaData().getColumnName(i+1);
-                            int tipoColumna = 
-                                    rs.getMetaData().getColumnType(i+1);
-                            
-                            String valorColumna = "";
-                            if (tipoColumna == java.sql.Types.VARCHAR){
-                                valorColumna = rs.getString(nombreColumna);
-                            }else if (tipoColumna == java.sql.Types.INTEGER){
-                                valorColumna = 
-                                        String.valueOf(rs.getInt(nombreColumna));
-                            }
-                            //valoresColumna[i] = valorColumna;
-                            System.out.print(valorColumna + "\t\t");
-                        }
-                        System.out.println();
-                    }
-                }else{
-                    System.out.println(sentenciaSQL);
-                    
-                    System.out.println("Se ejecutó la sentencia correctamente");
-                }
-            } catch ( Exception se ) {
+                adapter = new SQLiteBDAdapter();
+                adapter.conectarse(nombreBD);
+                String resp = adapter.ejecutar(sentenciaSQL);
+                System.out.println(resp);
+            } catch (SQLException se)  {
                 System.err.println(se);
+            } catch (ClassNotFoundException ex) {
+                System.err.println(ex);
             }
+            
         }else{
             System.err.println("No especificó un tipo de BD permitido");
         }
