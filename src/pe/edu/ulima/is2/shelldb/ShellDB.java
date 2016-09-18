@@ -31,7 +31,7 @@ public class ShellDB {
         String nombreBD = args[1];
         String sentenciaSQL = args[2];
         
-        GestorBD gestor = new GestorBD();
+        GestorBD gestor = GestorBD.getInstance();
         System.out.println(gestor.realizarOperacion(
                 tipoBD, nombreBD, sentenciaSQL));
     }
