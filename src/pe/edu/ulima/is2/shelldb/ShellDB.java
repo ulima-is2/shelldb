@@ -31,22 +31,9 @@ public class ShellDB {
         String nombreBD = args[1];
         String sentenciaSQL = args[2];
         
-        BDFactory factory = new BDFactory();
-        BDAdapter adapter = factory.obtenerAdapter(tipoBD);
-        
-        if (adapter == null){
-            System.err.println("No especificó un tipo de BD permitido");
-        }else{
-        
-            try {
-                adapter.conectarse(nombreBD);
-                String resp = adapter.ejecutar(sentenciaSQL);
-                System.out.println(resp);
-            } catch (SQLException | ClassNotFoundException se) {
-                System.err.println(se);
-            }
-        }
-        
+        GestorBD gestor = new GestorBD();
+        System.out.println(gestor.realizarOperacion(
+                tipoBD, nombreBD, sentenciaSQL));
     }
     
 }
